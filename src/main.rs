@@ -22,7 +22,7 @@ struct CharElement {
 }
 
 type Row = [CharElement; 5];
-type Board = [Row; 2];
+type Board = [Row; 6];
 
 /**
  * Prints the board with colorings depending if the characters are in the word and in the right position.
@@ -164,11 +164,11 @@ fn check_win_con(row: Row) -> bool {
 /**
  * Display a message if the player won or lost.
  */
-fn handle_win(won: bool) {
+fn handle_win(won: bool, word: String) {
     if won {
         println!("You guessed the word!");
     } else {
-        println!("You could not guess the word :(\nTry again!");
+        println!("The word was {} \nTry again!", word);
     }
 }
 
@@ -188,7 +188,7 @@ fn main() {
     let mut board: Board = [[CharElement {
         character: ' ',
         cond: CharCond::None,
-    }; 5]; 2];
+    }; 5]; 6];
 
     println!();
     println!("        Rustword!");
@@ -218,5 +218,5 @@ fn main() {
     }
 
     print_board(board, current_row);
-    handle_win(check_win_con(board[current_row]));
+    handle_win(check_win_con(board[current_row]), game_word.to_string());
 }
