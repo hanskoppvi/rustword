@@ -85,11 +85,13 @@ fn print_board(board: Board, row: usize) {
 }
 
 /**
- *
+ * Gets a random word from a file.
  */
 fn get_word(word_list: File) -> String {
     let reader = BufReader::new(word_list);
 
+    // Using any function with lines() consumes the buffer it cant be moved (re-read) anymore.
+    // We create a "copy" in a vector that can be manipulated further.
     let lines = reader.lines().collect::<Vec<_>>();
     let word_count = lines.len();
 
@@ -104,7 +106,7 @@ fn get_word(word_list: File) -> String {
     }
 }
 /**
- * Load a file containing the words for the game
+ * Load a file containing the words for the game.
 */
 fn load_file(path_str: String) -> File {
     let path = Path::new(path_str.as_str());
@@ -131,7 +133,7 @@ fn validate_input(input: String) -> i32 {
 }
 
 /**
- * Copies the input in the corresponding row with the conditioning of the charactes
+ * Copies the input in the corresponding row with the conditioning of the characters.
  */
 fn handle_input(input: String, board: &mut Board, current_row: usize, game_word: String) {
     for (current_col, input_char) in input.to_string().chars().enumerate() {
@@ -147,6 +149,9 @@ fn handle_input(input: String, board: &mut Board, current_row: usize, game_word:
     }
 }
 
+/**
+ * Check if all of the charactes in the row are correct.
+ */
 fn check_win_con(row: Row) -> bool {
     for square in row {
         if square.cond == CharCond::Missplaced || square.cond == CharCond::None {
@@ -156,6 +161,9 @@ fn check_win_con(row: Row) -> bool {
     return true;
 }
 
+/**
+ * Display a message if the player won or lost.
+ */
 fn handle_win(won: bool) {
     if won {
         println!("You guessed the word!");
@@ -164,12 +172,19 @@ fn handle_win(won: bool) {
     }
 }
 
+// /**
+//  * Check if the word given by the player is in the dictionary.
+//  */
+// fn check_word() {
+// TODO: (hans) Implement function
+// }
+
 fn main() {
     let word_list = load_file(String::from("./words/five.txt"));
 
     let mut input = String::new();
     let game_word = get_word(word_list);
-    println!("Word gotten: {}", game_word.to_string());
+
     let mut board: Board = [[CharElement {
         character: ' ',
         cond: CharCond::None,
