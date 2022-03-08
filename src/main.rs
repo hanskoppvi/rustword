@@ -1,8 +1,7 @@
 extern crate rand;
 extern crate termion;
 
-use rand::thread_rng;
-use rand::Rng;
+use rand::{thread_rng, Rng};
 use std::fs::File;
 use std::io::{self, prelude::*, BufReader};
 use std::path::Path;
@@ -87,8 +86,9 @@ fn print_board(board: Board, row: usize) {
 /**
  * Gets a random word from a file.
  */
-fn get_word(word_list: File) -> String {
-    let reader = BufReader::new(word_list);
+fn get_word() -> String {
+    let words_file = load_file(String::from("./words/five.txt"));
+    let reader = BufReader::new(words_file);
 
     // Using any function with lines() consumes the buffer it cant be moved (re-read) anymore.
     // We create a "copy" in a vector that can be manipulated further.
@@ -123,13 +123,35 @@ fn load_file(path_str: String) -> File {
 /**
  * Validated that the input is a valid word. And it's in the dictionary.
  */
-fn validate_input(input: String) -> i32 {
-    if input.len() == 5 {
-        return 0;
-    } else {
-        println!("Please enter a valid word!");
-        return -1;
+fn validate_input(input: String) -> bool {
+    if input.len() != 5 {
+        println!("It must be a 5 letter word!!");
+        return false;
     }
+
+    let mut real_word = false;
+    let words_file = load_file(String::from("./words/five.txt"));
+    let reader = BufReader::new(words_file);
+    for line in reader.lines() {
+        match line {
+            Ok(x) => {
+                if x == input.to_string() {
+                    real_word = true;
+                    break;
+                }
+            }
+            Err(_) => print!("error"),
+        }
+    }
+    if !real_word {
+        println!(
+            "{} is not a word in the english dictionary!",
+            input.to_string()
+        );
+        return false;
+    }
+
+    return true;
 }
 
 /**
@@ -172,18 +194,9 @@ fn handle_win(won: bool, word: String) {
     }
 }
 
-// /**
-//  * Check if the word given by the player is in the dictionary.
-//  */
-// fn check_word() {
-// TODO: (hans) Implement function
-// }
-
 fn main() {
-    let word_list = load_file(String::from("./words/five.txt"));
-
     let mut input = String::new();
-    let game_word = get_word(word_list);
+    let game_word = get_word();
 
     let mut board: Board = [[CharElement {
         character: ' ',
@@ -202,7 +215,7 @@ fn main() {
         io::stdin().read_line(&mut input).unwrap();
         input.pop(); // remove enter
 
-        if validate_input(input.to_string()) == 0 {
+        if validate_input(input.to_string()) {
             handle_input(
                 input.to_string(),
                 &mut board,
